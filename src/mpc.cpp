@@ -1,4 +1,4 @@
-#include "MPC.h"
+#include "mpc.h"
 #include <cppad/cppad.hpp>
 #include <cppad/ipopt/solve.hpp>
 #include "Eigen-3.3/Eigen/Core"
@@ -6,7 +6,7 @@
 using CppAD::AD;
 
 // Set the timestep length and duration
-size_t N = 7;
+size_t N = 15;
 double dt = 0.1;
 
 // This value assumes the model presented in the classroom is used.
@@ -22,7 +22,7 @@ double dt = 0.1;
 const double Lf = 2.67;
 
 // desired speed
-const double desired_speed = 60.0;
+const double desired_speed = 50.0;
 
 //indexes to reference variables inside the `vars` vector
 size_t x_start     = 0;
@@ -33,6 +33,7 @@ size_t cte_start   = v_start + N;
 size_t epsi_start  = cte_start + N;
 size_t delta_start = epsi_start + N;
 size_t a_start     = delta_start + N - 1;
+
 
 
 class FG_eval {
@@ -47,37 +48,27 @@ class FG_eval {
     // calculate errors
     for (int t = 0; t < N; t++){
       
+      // error states
       // cte (cross-track error)
-      fg[0] += 20.0*CppAD::pow(vars[cte_start + t], 2);
-      // trajectory error
-      fg[0] += 10000.0*CppAD::pow(vars[epsi_start + t], 2);
+      fg[0] += w_cte*CppAD::pow(vars[cte_start + t], 2);
+      // epsi (heading error)
+      fg[0] += w_epsi*CppAD::pow(vars[epsi_start + t], 2);
       // speed error
-      fg[0] += 2*CppAD::pow(vars[v_start + t] - desired_speed, 2);  
+      fg[0] += w_verr*CppAD::pow(vars[v_start + t] - desired_speed, 2);  
       
-
-      // cte (cross-track error)
-      //fg[0] += CppAD::pow(vars[cte_start + t], 2);
-      // trajectory error
-      //fg[0] += CppAD::pow(vars[epsi_start + t], 2);
-      // speed error
-      //fg[0] += CppAD::pow(vars[v_start + t] - desired_speed, 2);    
-      
-      // dilute actuators
+      // inputs
       if (t < N - 1) {
         // steering
-        fg[0] += CppAD::pow(vars[delta_start + t], 2);
-        // throttle/brake
-        fg[0] += CppAD::pow(vars[a_start + t], 2);
+        fg[0] += w_delta*CppAD::pow(vars[delta_start + t], 2);
+        // acceleration
+        fg[0] += w_a*CppAD::pow(vars[a_start + t], 2);
       }
-      
-      // actuator shock absorber
+      // delta inputs
       if (t < N - 2) {
         //steering
-        fg[0] += 30000.0*CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
-        //fg[0] += CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
-
+        fg[0] += w_d_delta*CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
         //acceleration
-        fg[0] += CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);    
+        fg[0] += w_d_a*CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);    
       }
     }
 
@@ -248,15 +239,14 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
 
   // Cost
   auto cost = solution.obj_value;
-  std::cout << "Cost " << cost << std::endl;
 
   // Return the first actuator values. The variables can be accessed with
   // `solution.x[i]`.
 
   vector<double> res;
 
-  std::cout << "delta_start:" << delta_start << " value: " << solution.x[delta_start] << std::endl;
-  std::cout << "a start:" << a_start << " value:" << solution.x[a_start] << std::endl;
+  std::cout << "Cost: " << cost << std::endl;
+  // std::cout << solution.x[delta_start] << "a start value:" << solution.x[a_start] << std::endl;
 
   res.push_back(solution.x[delta_start]);
   res.push_back(solution.x[a_start]);

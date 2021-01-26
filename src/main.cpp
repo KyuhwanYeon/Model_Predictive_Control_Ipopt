@@ -6,12 +6,11 @@
 #include <vector>
 #include "Eigen-3.3/Eigen/Core"
 #include "Eigen-3.3/Eigen/QR"
-#include "MPC.h"
+#include "mpc.h"
 #include "json.hpp"
 #include <cstdio>
 #include <fstream>
 #include "logging.h"
-#include "acado.h"
 // for convenience
 using json = nlohmann::json;
 
@@ -98,7 +97,7 @@ int main()
     // The 2 signifies a websocket event
 
     string sdata = string(data).substr(0, length);
-    cout << sdata << endl;
+    // cout << sdata << endl;
     if (sdata.size() > 2 && sdata[0] == '4' && sdata[1] == '2')
     {
       string s = hasData(sdata);
@@ -138,8 +137,6 @@ int main()
             local_pnt = translation * pnt;
             xvals[i] = local_pnt[0];
             yvals[i] = local_pnt[1];
-            // std::cout << "pnt: " << pnt[0]       <<", "<< pnt[1]       << std::endl;
-            // std::cout << "lcl: " << local_pnt[0] <<", "<< local_pnt[1] << std::endl;
           }
 
           // add the 3rd order polynomial to the coeffecients
@@ -183,7 +180,6 @@ int main()
 
           msgJson["mpc_x"] = mpc_x_vals;
           msgJson["mpc_y"] = mpc_y_vals;
-          // run_mpc_acado();
 
           // Display the waypoints/reference line
           vector<double> next_x_vals;
@@ -207,7 +203,6 @@ int main()
           // logging msg
           float steering = {steer_value / deg2rad(25) * -1.0};
           logSteering.StartLogging(steering);
-          std::cout << msg << std::endl;
           ///////////////////////////////////////////////////////////////////////////
 
           // Latency

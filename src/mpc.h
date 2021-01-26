@@ -4,6 +4,15 @@
 #include <vector>
 #include "Eigen-3.3/Eigen/Core"
 
+// weights
+#define w_cte 6
+#define w_epsi 10000
+#define w_verr 6
+#define w_delta 100
+#define w_a 10
+#define w_d_delta 10
+#define w_d_a 100
+
 using namespace std;
 // too
 class MPC {
