@@ -104,7 +104,7 @@ class FG_eval {
       AD<double> epsi1 = vars[epsi_start + t];
 
 
-      // 3rd order polynomial for the wiggle, no straight here like 1st!
+      // 3rd order polynomial
       AD<double> f0 = coeffs[0] + coeffs[1]*x0 + coeffs[2]*pow(x0,2) + coeffs[3]*pow(x0,3);
       AD<double> psides0 = CppAD::atan(coeffs[1] + 2*coeffs[2]*x0 + 3*coeffs[3]*pow(x0,2));
 
@@ -167,7 +167,6 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
 
   // The upper and lower limits of delta are set to -25 and 25
   // degrees (values in radians).
-  // NOTE: Feel free to change this to something else.
   for (int i = delta_start; i < a_start; i++) {
     // limits set at +/- 0.4363 (radian) to represent 25 degrees
     vars_lowerbound[i] = -0.4363;
@@ -175,7 +174,6 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   }
 
   // Acceleration/decceleration upper and lower limits.
-  // NOTE: Feel free to change this to something else.
   for (int i = a_start; i < n_vars; i++) {
     vars_lowerbound[i] = -1;
     vars_upperbound[i] =  1;
