@@ -12,12 +12,8 @@ If you want to more information of this project, please visit this [link](https:
 ### Kinematic model 
 
 The kinematic model is used for vehicle model.
-$$
-x_{t+1} = x_{t}+v_{t}*cos(\psi_{t})*dt\\
-y_{t+1} = y_{t}+v_{t}*sin(\psi_{t})*dt\\
-\psi_{t+1} = \psi_{t}+{v_{t}\over{L_{f}}}*\delta_{t}*dt\\
-v_{t+1} = v_{t}+a_{t}*dt\\
-$$
+
+![kinematic](media/kinematic.png)
 
 ### Reference path
 
@@ -35,28 +31,14 @@ Three error states are used.
 
 ![Error](media/Error_MPC.png)		
 	
-$$
-e_t=\left(\begin{array}{ll1}
-  {cte_t} \\
-  {epsi_t} \\
-  {v_{err,t}} \\
-  \end{array}\right)
-$$
 
-
-```cte``` is refers the cross track error which is lateral difference with reference path. ```epsi``` means the orientation error like above picture. `v_err` means the velocity difference with target velocity.
+```cte``` is refers the cross track error which is lateral difference with reference path. ```epsi``` means the orientation error like above picture. For velocity keeping, velocity error was used.
 
 
 
 ### MPC Formulation
 
-$$
-\min_u\hspace{0.2cm}J=\Sigma_{t=0}^{N}e_t^T Qe_t +\Sigma_{t=0}^{N-1}u_t^T R_1u_t+\Sigma_{t=0}^{N-2}\Delta u_t^T R_2\Delta u_t\\
-
-
-s.t \hspace{1cm}X_{t+1}=f(X_t,u_t)\hspace{3cm}t= 0,1,\dots,N\\
-\hspace{2cm}u_{min}<u_t<u_{max}\hspace{3cm}t= 0,1,\dots,N\\
-$$
+![mpc_formulation](media/mpc_formulation.png)
 
 This MPC minimize error states, magnitude of inputs and derivative of inputs.
 
